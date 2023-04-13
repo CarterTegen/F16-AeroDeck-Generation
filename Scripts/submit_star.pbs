@@ -1,0 +1,36 @@
+#!/bin/bash
+# ----------------QSUB Parameters----------------- #
+#PBS -N CCM_Test
+#PBS -A GT-jt59-FAA_A10_CostShare
+#PBS -l nodes=1:ppn=24,pmem=6gb
+#PBS -l walltime=8:00:00
+#PBS -q embers
+#PBS -j oe
+#PBS -o pbs_job.out
+#PBS -m abe
+#PBS -M cartertegen@gatech.edu
+
+# ----------------Load Modules-------------------- #
+module load openmpi/3.1.6
+module load starccmplus/17.02.007
+
+export OPENMPI_DIR=$OPENMPI_ROOT
+
+# -------------Environment Variables--------------- #
+cd ${PBS_O_WORKDIR}
+
+MACROFILE="generateDeck.java"
+SIMFILE="f16sim.sim"
+
+# ----------------Print Some Info-------------------- #
+echo Running on host `hostname`
+echo Time is `date`
+echo Directory is `pwd`
+echo This jobs runs on the following processors:
+NODES=`cat $PBS_NODEFILE`
+echo $NODES
+# Compute the number of processors
+echo This job has allocated ${PBS_NP} nodes
+
+# ---------------Execute Script ------------------ #
+starccm+ -mpi openmpi -licpath 1999@ugslic2.ecs.gatech.edu -machinefile ${PBS_NODEFILE} -np ${PBS_NP} -batch $MACROFILE $SIMFILE > starccm_${PBS_JOBID}.log
